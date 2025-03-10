@@ -27,9 +27,21 @@ public with sharing class SOQL {
 	 * @return List of all leads with Id, LastName, Company, Phone, Email
 	 * Update the corresponding test class and testGetAllLeads method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Lead> getAllLeads() 
+	{
+	  List<Lead> leads;
+	  try 
+	  {
+		leads = [SELECT Id,LastName,Company,Phone,Email 
+				 FROM Lead 
+				 WITH SECURITY_ENFORCED];
+	  } 
+	  catch (DmlException e) 
+	  {
+		System.debug('The following exception has occured : ' + e.getMessage());
+	  }
+	  return leads;
+	}
 
 	/**
 	 * Question 2
@@ -38,9 +50,22 @@ public with sharing class SOQL {
 	 * @return A list of Contact records.
 	 * Update the corresponding test class and testGetContactsByFirstName method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Contact> getContactsByFirstName(String firstName) 
+	{
+	 List<Contact> contacts;
+	  try 
+	  {
+		contacts = [SELECT Id,FirstName,LastName,Name 
+					FROM Contact 
+					WHERE firstName= :firstName
+				    WITH SECURITY_ENFORCED];
+	  } 
+	  catch (DmlException e) 
+	  {
+		System.debug('The following exception has occured : ' + e.getMessage());
+	  }
+	  return contacts;
+	}
 
 	/**
 	 * Question 3
@@ -49,9 +74,26 @@ public with sharing class SOQL {
 	 * @return A list of Contact Ids.
 	 * Update the corresponding test class and testGetContactIdsByLastName method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Id> getContactIdsByLastName(List<String> lastNames) 
+	{
+	  List<Id> ids = new List<Id>();
+	  try 
+	  {
+		List<Contact> contactIds = [SELECT Id 
+									FROM Contact 
+									WHERE LastName in :lastNames 
+									WITH SECURITY_ENFORCED];
+		for(Contact con : contactIds){
+			ids.add(con.id);
+		}
+	  } 
+	  catch (DmlException e) 
+	  {
+		System.debug('The following exception has occured : ' + e.getMessage());
+	  }
+	  return ids;
+	}
+
 
 	/**
 	 * Question 4
@@ -62,9 +104,23 @@ public with sharing class SOQL {
 	 * @return A list of Opportunities with important opportunities fields
 	 * Update the corresponding test class and testGetClosedWonOpportunityCountByAccount method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Opportunity> getClosedWonOpportunityCountByAccount(Id accountID) 
+	{
+	  String stageValue = 'Closed Won';
+	  List<Opportunity> oppo;
+	  try 
+	  {
+		 oppo = [SELECT Name,StageName,CloseDate,Amount,AccountID 
+		 		 FROM Opportunity 
+				 WHERE StageName = :stageValue and AccountID=: accountID 
+				 WITH SECURITY_ENFORCED];
+	  } 
+	  catch (DmlException e) 
+	  {
+		System.debug('The following exception has occured : ' + e.getMessage());
+	  }
+	  return oppo;
+	}
 
 	/**
 	 * Question 5
@@ -73,10 +129,22 @@ public with sharing class SOQL {
 	 * @return The Integer count of Account records.
 	 * Update the corresponding test class and testGetAccountCount method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
-
+	public static Integer getAccountCount()
+	{
+	  Integer accCount;
+	  try 
+	  {
+		List<AggregateResult> countResult= [SELECT count(Id) cnt 
+											FROM Account 
+											WITH SECURITY_ENFORCED];
+		accCount = (Integer)countResult[0].get('cnt');
+	  } 
+	  catch (DmlException e) 
+	  {
+		System.debug('The following exception has occured : ' + e.getMessage());
+	  }
+	  return accCount;
+	}
 	/**
 	 * Question 6
 	 * Update/Uncomment the template code to create a method
@@ -84,9 +152,23 @@ public with sharing class SOQL {
 	 * @return A map of Task Ids to Task records.
 	 * Update the corresponding test class and testGetTasksDueNextWeek method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	 public static Map<Id,Task> getTasksDueNextWeek()
+	 {
+	   Map<Id,Task> taskMap;
+	   try 
+	   {
+		 List<Task> taskResult= [SELECT Id,Subject 
+		 						FROM Task 
+								WHERE ActivityDate <= NEXT_N_DAYS:7 
+								WITH SECURITY_ENFORCED];
+		 taskMap = new Map<Id,Task>(taskResult);
+	   } 
+	   catch (DmlException e) 
+	   {
+		 System.debug('The following exception has occured : ' + e.getMessage());
+	   }
+	   return taskMap;
+	 }
 
 	/**
 	 * Question 7
@@ -95,9 +177,23 @@ public with sharing class SOQL {
 	 * @return A list of Contact records.
 	 * Update the corresponding test class and testGetContactsByEmailDomain method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Contact> getContactsByEmailDomain() 
+	{
+	  String domain = '%example.com';
+	  List<Contact> con;
+	  try 
+	  {
+		 con = [SELECT Id,Name,Email 
+		 		FROM Contact 
+				WHERE Email like :domain 
+				WITH SECURITY_ENFORCED];
+	  } 
+	  catch (DmlException e) 
+	  {
+		System.debug('The following exception has occured : ' + e.getMessage());
+	  }
+	  return con;
+	}
 
 	/**
 	 * Question 8
@@ -106,8 +202,21 @@ public with sharing class SOQL {
 	 * @param keyword The keyword to search for in the Opportunity Name.
 	 * @return A list of Opportunity records.
 	 */
-	public static List<Opportunity> getOpportunitiesByNameKeyword(String keyword) {
-		return null; // Replace null with the variable you used to store the result
+	public static List<Opportunity> getOpportunitiesByNameKeyword(String keyword) 
+	{
+		List<Opportunity> opp;
+		try 
+		{
+			opp = [SELECT Id,Name,StageName 
+				   FROM Opportunity 
+				   WHERE Name LIKE :'%'+ keyword + '%' 
+				   WITH SECURITY_ENFORCED];
+		} 
+		catch (DmlException e) 
+		{
+		  System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return opp; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -115,8 +224,22 @@ public with sharing class SOQL {
 	 * Retrieves all Cases that Case Origin is not Web or Email or Blank
 	 * @return A list of Case records.
 	 */
-	public static List<Case> getFilterCaseOrigins() {
-		return null; // Replace null with the variable you used to store the result
+	public static List<Case> getFilterCaseOrigins() 
+	{
+		List<Case> allCase;
+		try 
+		{
+			Set<String> caseOrigin= new Set<String>{'Web', 'Email', ''};
+			allCase = [SELECT Id,Status,Type,Origin 
+			           FROM Case 
+					   WHERE Origin Not In : caseOrigin 
+					   WITH SECURITY_ENFORCED];
+		} 
+		catch (DmlException e) 
+		{
+		  System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return allCase; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -129,9 +252,22 @@ public with sharing class SOQL {
 	 * @return A list of Lead records.
 	 * Update the corresponding test class and testGetLeadsBySourceOrTitle method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Lead> getLeadsBySourceOrTitle(String leadSource,String title) 
+	{
+		List<Lead> allLead;
+		try 
+		{
+			allLead = [SELECT Id,LeadSource,Title,LastName,Company,Phone,Email 
+			           FROM Lead 
+					   WHERE leadSource = :leadSource or Title like :'%'+title+'%' 
+					   WITH SECURITY_ENFORCED];
+		} 
+		catch (DmlException e) 
+		{
+		  System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return allLead; // Replace null with the variable you used to store the result
+	}
 
 	/**
 	 * Question 11
@@ -142,15 +278,25 @@ public with sharing class SOQL {
 	 */
 	public static List<String> getContactNamesByAccount(Id accountId) {
 		// Create a list to hold the Contact LastNames
-
-		// Query the Contacts
-		// Loop through each Contact and add the LastName to the list
-		//for () {
-		//
-		//}
-
+		List<String> lastNames = new List<String>();
+		try 
+		{
+			// Query the Contacts
+			List<Contact> contacts = [SELECT Id,LastName,FirstName,Phone,Email 
+									  FROM Contact 
+								      WHERE AccountID = :accountId 
+								      WITH SECURITY_ENFORCED];
+			// Loop through each Contact and add the LastName to the list
+			for (Contact con : contacts) {
+			  lastNames.add(con.LastName);
+			}
+		} 
+		catch (DmlException e) 
+		{
+		  System.debug('The following exception has occured : ' + e.getMessage());
+		}
 		// Return the list of Contact LastNames
-		return null; // Replace null with the variable you used to store the result
+		return lastNames; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -161,10 +307,22 @@ public with sharing class SOQL {
 	 * @return The total revenue.
 	 */
 	public static Decimal getTotalRevenueByStage(String stage) {
-		// Use AggregateQuery to get the total revenue
-
+		Decimal totalRevenue;
+		try 
+		{
+			// Use AggregateQuery to get the total revenue
+			List<AggregateResult> result = [SELECT Sum(Amount) cnt 
+									        FROM opportunity 
+								            WHERE StageName = :stage or Amount > 10000 
+								            WITH SECURITY_ENFORCED];
+		    totalRevenue = 	(Decimal)result[0].get('cnt');	
+		} 
+		catch (DmlException e) 
+		{
+		  System.debug('The following exception has occured : ' + e.getMessage());
+		}
 		// Return the total revenue
-		return null; // Replace null with the variable you used to store the result
+		return totalRevenue; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -173,7 +331,19 @@ public with sharing class SOQL {
 	 * @return A list of the first 10 Accounts ordered by Name.
 	 */
 	public static List<Account> getFirstTenAccounts() {
-		return null; // Replace null with the variable you used to store the result
+		List<Account> accResult;
+		try 
+		{
+			accResult = [SELECT id,Name
+						 FROM Account 
+						 ORDER BY Name
+						 LIMIT 10];
+    	} 
+		catch (DmlException e) 
+		{
+		  System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return accResult; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -182,7 +352,20 @@ public with sharing class SOQL {
 	 * @return A list of Opportunities with an Amount greater than 100,000, ordered by CloseDate, and limited to 5 records.
 	 */
 	public static List<Opportunity> getHighValueOpportunities() {
-		return null; // Replace null with the variable you used to store the result
+		List<Opportunity> oppResult;
+		try 
+		{
+            oppResult = [SELECT Id,CloseDate,Name,AccountId,Amount,StageName
+						 FROM Opportunity 
+						 WHERE Amount > 100000 
+						 ORDER BY CloseDate
+						 LIMIT 5];
+        } 
+		catch (DmlException e) 
+		{
+		  System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return oppResult; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -191,7 +374,19 @@ public with sharing class SOQL {
 	 * @return A list of Contacts
 	 */
 	public static List<Contact> getBirthdateContacts() {
-		return null; // Replace null with the variable you used to store the result
+		List<Contact> contacts;
+		try 
+		{
+            contacts = [SELECT Id,LastName,FirstName,Birthdate
+						FROM Contact 
+						ORDER BY Birthdate DESC
+						LIMIT 3];
+        } 
+		catch (DmlException e) 
+		{
+		  System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return contacts; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -200,7 +395,22 @@ public with sharing class SOQL {
 	 * @return A list of Cases
 	 */
 	public static List<Case> getCasesWithStatus() {
-		return null; // Replace null with the variable you used to store the result
+		List<Case> cases;
+		String status = 'Open';
+		try 
+		{
+            cases = [SELECT Id,Status,CreatedDate
+					 FROM Case 
+					 WHERE Status =: status
+					 ORDER BY CreatedDate 
+					 LIMIT 10
+					 OFFSET 5];
+        } 
+		catch (DmlException e) 
+		{
+		  System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return cases; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -212,14 +422,26 @@ public with sharing class SOQL {
 	 */
 	public static Set<Id> getCaseIdsByAccount(Id accountId) {
 		// Create a set to hold the Case Ids
-
-		// Query the Cases
-		// Loop through each Case and add the Id to the set
-		//for () {
-		//
-		//}
-
-		return null; // Replace null with the variable you used to store the result
+		Set<Id> caseIds = new Set<Id>();
+		List<Case> cases;
+		try 
+		{
+			// Query the Cases
+            cases = [SELECT Id,AccountID
+					 FROM Case 
+					 WHERE AccountID =: accountId
+					 WITH SECURITY_ENFORCED];
+			// Loop through each Case and add the Id to the set
+			for(Case c : cases)
+			{
+				caseIds.add(c.Id);
+        	} 
+		}
+		catch (DmlException e) 
+		{
+		    System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return caseIds; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -232,11 +454,24 @@ public with sharing class SOQL {
 	public static Map<Id, String> getAccountIdsToNamesNotInCountry(String country) {
 		// Create a map to hold the Account Ids to Account Names
 		Map<Id, String> accountIdsToNames = new Map<Id, String>();
-
-		// Query the Accounts
-		// Loop through each Account and add the Id and Name to the map
-
-		return null; // Replace null with the variable you used to store the result
+		try 
+		{
+			// Query the Accounts
+			List<Account> accounts = [SELECT id,Name
+									  FROM Account 
+									  WHERE BillingCountry != :country
+									  wITH SECURITY_ENFORCED];
+			// Loop through each Account and add the Id and Name to the map
+			for(Account acc : accounts)
+			{
+				accountIdsToNames.put(acc.id,acc.Name);
+			}
+		} 
+		catch (DmlException e) 
+		{
+		    System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return accountIdsToNames; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -247,7 +482,20 @@ public with sharing class SOQL {
 	 * @return The Account Name of the Contact.
 	 */
 	public static String getAccountNameForContact(String contactId) {
-		return null; // Replace null with the variable you used to store the result
+		String accName;
+		try 
+		{
+			List<Contact> contacts = [SELECT id,Account.Name
+									  FROM Contact 
+									  WHERE id=:contactId
+									  WITH SECURITY_ENFORCED];
+			accName = contacts[0].Account.Name;
+		} 
+		catch (DmlException e) 
+		{
+		    System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return accName; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -258,7 +506,21 @@ public with sharing class SOQL {
 	 * @return An Account record with related Opportunities.
 	 */
 	public static Account getAccountAndOpportunitiesFromAccountId(Id accountId) {
-		return null; // Replace null with the variable you used to store the result
+		Account accounts;
+		try 
+		{
+			accounts = [SELECT id,name,
+			            (SELECT id,name
+						FROM Opportunities) 
+						FROM Account
+						WHERE Id=:accountId
+						WITH SECURITY_ENFORCED];
+		} 
+		catch (DmlException e) 
+		{
+		    System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return accounts; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -269,12 +531,25 @@ public with sharing class SOQL {
 	 * @return List of contacts with the same Mailing State as the Account Billing State
 	 */
 	public static List<Contact> getAccountsWithContactsByState(Id accountId) {
-		// Query the Account
-
-		// Store the Account's BillingState
-
-		// Query the Contacts
-		return null; // Replace null with the variable you used to store the result
+		List<Contact> contacts;
+		try 
+		{
+			// Query the Account
+			Account accounts = [SELECT id,name,billingState
+			            		FROM Account
+						        WHERE Id=:accountId
+						        WITH SECURITY_ENFORCED];
+							
+			// Query the Contacts
+			contacts = [SELECT id
+				        FROM Contact
+			            WHERE MailingState =:accounts.billingState];
+		} 
+		catch (DmlException e) 
+		{
+		    System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return contacts; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -285,22 +560,44 @@ public with sharing class SOQL {
 	 * @param A set of Lead Ids.
 	 * @return A list of Accounts with matching email domains.
 	 */
-	public static List<Account> findAccountsByLeadEmailDomains(Set<Id> leadIds) {
-		// Query the Leads
-
-		// Create a set of email domains from the Leads
-
-		// Loop through each Lead
-
-		// Get the email from the Lead
-
-		// Check if the email is not null
-
-		// Add the email domain to the set
-
-		// Query the Accounts
-		return null; // Replace null with the variable you used to store the result
+	public static List<Account> findAccountsByLeadEmailDomains(Set<Id> leadIds) 
+	{
+		List<Account> accounts;
+		String subDomain = 'www.';
+		try 
+		{
+			// Query the Leads
+            List<Lead> leads = [SELECT Email
+							   FROM Lead
+							   WHERE id in :leadIds
+							   WITH SECURITY_ENFORCED];
+			// Create a set of email domains from the Leads
+			Set<String> emailDomains = new Set<String>();
+			// Loop through each Lead
+			for(Lead l : leads)
+			{
+				// Get the email from the Lead
+				// Check if the email is not null
+				if(l.Email != null)
+				{
+					// Add the email domain to the set
+					emailDomains.add(subDomain + l.Email.split('@')[1]);
+				}
+			}
+			
+			// Query the Accounts
+			accounts = [SELECT Id,Website
+						FROM Account
+						WHERE Website like : emailDomains
+						WITH SECURITY_ENFORCED];
+		}
+		catch (DmlException e) 
+		{
+		    System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return accounts; // Replace null with the variable you used to store the result
 	}
+
 
 	/**
 	 * Question 23
@@ -310,20 +607,39 @@ public with sharing class SOQL {
 	 * @param Original Opportunity Id
 	 * @param List of cloned Opportunity Ids
 	 */
-	public static void cloneLineItems(Id origOppId, List<Id> cloneOppIds) {
-		// Query the original Opportunity Line Items
-
-		// Create a list to hold the new line items
-
-		// Generate a random number between 1 and 3
-
-		// Loop through each cloned Opportunity Id
-
-		// Loop through each original line item
-
-		// Clone the original line item and add the random number to the quantity
-
-		// Insert the new line items
+	public static void cloneLineItems(Id origOppId, List<Id> cloneOppIds) 
+	{
+		try 
+		{
+			// Query the original Opportunity Line Items
+			List<OpportunityLineItem> oppLineItems = [SELECT id, Quantity,PricebookEntryId,UnitPrice
+													  FROM OpportunityLineItem
+													  WHERE OpportunityId = :origOppId
+													  WITH SECURITY_ENFORCED];
+			// Create a list to hold the new line items
+			List<OpportunityLineItem> newLineItems = new List<OpportunityLineItem>();
+			// Generate a random number between 1 and 3
+			Integer randomNum =(Integer)Math.floor(Math.random() * 3) + 1;
+			// Loop through each cloned Opportunity Id
+			for(Id cloneId : cloneOppIds)
+			{
+				// Loop through each original line item
+				for(OpportunityLineItem lineItem : oppLineItems)
+				{
+					// Clone the original line item and add the random number to the quantity
+					newLineItems.add(new OpportunityLineItem(OpportunityId = cloneId,
+														    PricebookEntryId = lineItem.PricebookEntryId,
+															UnitPrice = lineItem.UnitPrice,
+															Quantity = lineItem.Quantity + randomNum));
+				}
+			}
+			// Insert the new line items
+			insert newLineItems;
+    	}
+		catch (DmlException e) 
+		{
+			System.debug('The following exception has occured : ' + e.getMessage());
+		}
 	}
 
 	/**
@@ -331,8 +647,21 @@ public with sharing class SOQL {
 	 * Retrieves the Opportunity Name, Account Name, and Owner Name for Opportunities that have a Stage of 'Closed Won'.
 	 * @return A list of filtered Opportunity
 	 */
-	public static List<Opportunity> getOpportunityDetailsForClosedWon() {
-		return null; // Replace null with the variable you used to store the result
+	public static List<Opportunity> getOpportunityDetailsForClosedWon() 
+	{
+		List<Opportunity> opp;
+		String stageName ='Closed Won';
+		try 
+		{
+			opp = [SELECT Name,Account.Name,Owner.Name,AccountID
+				  FROM Opportunity
+				  WHERE StageName =: stageName];
+		} 
+		catch (DmlException e) 
+		{
+			System.debug('The following exception has occured : ' + e.getMessage());
+		}
+		return opp; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -340,19 +669,43 @@ public with sharing class SOQL {
 	 * Sets the 'Primary_Contact__c' field for all Closed Won Opportunities to the Contact on the associated Account with the alphabetically first first name.
 	 * Example: if there are two Contacts on the Account, "Billy" and "Abby," the 'Primary_Contact__c' will be set to "Abby."
 	 */
-	public static void setPrimaryContact() {
-		//Use the getOpportunityDetailsForClosedWon() method to get the Opportunities
-
-		// Create a set of Account Ids from the Opportunities
-
-		// Query the Contacts
-
-		// Loop through each Contact and add the Account Id and Contact to the map
-
-		// Loop through each Opportunity
-
-		// Update the Opportunity primary contact from accountToContactMap
-
-		// Update the Opportunities
+	public static void setPrimaryContact() 
+	{
+		try 
+		{
+			//Use the getOpportunityDetailsForClosedWon() method to get the Opportunities
+			List<Opportunity> opportunities = getOpportunityDetailsForClosedWon();
+			// Create a set of Account Ids from the Opportunities
+			Set<Id> ids = new Set<Id>();
+			for(Opportunity opp : opportunities)
+			{
+				ids.add(opp.AccountId);
+			}
+			// Query the Contacts
+			List<Contact> contacts = [SELECT Id,FirstName,LastName,AccountID
+									  FROM Contact
+									  WHERE AccountID IN : ids
+									  WITH SECURITY_ENFORCED
+									  ORDER BY FirstName ASC];
+			
+			// Loop through each Contact and add the Account Id and Contact to the map
+			Map<Id,Contact> accountToContactMap = new Map<Id,Contact>();
+			for(Contact con : contacts)
+			{
+				accountToContactMap.put(con.AccountId,contacts[0]);
+			}
+			// Loop through each Opportunity
+			for(Opportunity opp : opportunities)
+			{
+				// Update the Opportunity primary contact from accountToContactMap
+				opp.primary_contact__c = accountToContactMap.get(opp.AccountId).id;
+			}
+			// Update the Opportunities
+			update opportunities;
+		} 
+		catch (DmlException e) 
+		{
+			System.debug('The following exception has occured : ' + e.getMessage());
+		}
 	}
 }
